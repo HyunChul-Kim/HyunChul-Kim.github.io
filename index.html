@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Career (README)</title>
+
+  <!-- GitHub Markdown 스타일(선택) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5/github-markdown.min.css">
+
+  <style>
+    body { margin: 0; }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+    /* markdown body에 기본 스타일 적용 */
+    .markdown-body {
+      box-sizing: border-box;
+      min-width: 200px;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <article id="content" class="markdown-body">Loading README...</article>
+  </main>
+
+  <!-- Markdown 렌더러 -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    // Career repo README raw 주소
+    const readmeUrl =
+      "https://raw.githubusercontent.com/HyunChul-Kim/Career/main/README.md";
+
+    fetch(readmeUrl, { cache: "no-cache" })
+      .then(r => {
+        if (!r.ok) throw new Error("README 로드 실패: " + r.status);
+        return r.text();
+      })
+      .then(md => {
+        // README 안의 상대 경로 이미지/링크를 raw 기준으로 보정하고 싶으면 여기서 치환 가능
+        // 예: (./images/a.png) -> (https://raw.githubusercontent.com/.../main/images/a.png)
+        const base = "https://raw.githubusercontent.com/HyunChul-Kim/Career/main/";
+        md = md.replace(/\]\(\.\//g, `](${base}`);     // 링크/이미지 상대경로 간단 보정
+        md = md.replace(/\]\(\//g, `](${base}`);      // 루트경로 비슷한 케이스 보정(필요시)
+
+        document.getElementById("content").innerHTML = marked.parse(md);
+      })
+      .catch(err => {
+        document.getElementById("content").textContent = err.message;
+      });
+  </script>
+</body>
+</html>
