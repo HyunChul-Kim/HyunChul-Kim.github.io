@@ -43,25 +43,10 @@
         return r.text();
       })
       .then(md => {
-        // 1) GitHub blob 링크를 raw로 변환 (이미지가 blob로 되어있으면 안 뜸)
-        md = md.replaceAll(baseRepo, baseRaw);
-
-        // 2) 상대경로 (./xxx) -> raw 절대경로로 변환
-        md = md.replace(/\]\(\.\//g, `](${baseRaw}`);
-
-        // 3) 상대경로 (images/xxx) 같은 케이스 보정 (필요하면 폴더명 추가)
-        md = md.replace(/\]\((?!https?:\/\/)([^)]+)\)/g, (m, p1) => `](${baseRaw}${p1})`);
+        md = md.replaceAll("https://github.com/", "https://raw.githubusercontent.com/")
+             .replaceAll("/blob/", "/");
 
         document.getElementById("content").innerHTML = marked.parse(md);
-
-        // 4) 마크다운 렌더 후 <img src="...">도 한 번 더 보정 (html img 태그 쓴 경우)
-        document.querySelectorAll("#content img").forEach(img => {
-            const src = img.getAttribute("src") || "";
-            if (src.startsWith("./")) img.src = baseRaw + src.slice(2);
-            else if (!src.startsWith("http")) img.src = baseRaw + src;
-            else if (src.includes("github.com/") && src.includes("/blob/"))
-            img.src = src.replace("https://github.com/", "https://raw.githubusercontent.com/").replace("/blob/", "/");
-        });
       })
       .catch(err => {
         document.getElementById("content").textContent = err.message;
